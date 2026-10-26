@@ -36,7 +36,7 @@ SAMPLE_JOBS = [
     {"id": "demo-4", "title": "Cybersecurity Analyst Intern (Sample)", "company": "Demo Security Lab", "location": "Demo listing", "description": "Cybersecurity Python communication Git security analysis", "source_url": None, "is_demo": True},
 ]
 
-from ..config import ACCESS_TOKEN_EXPIRE_MINUTES
+from ..config import ACCESS_TOKEN_EXPIRE_MINUTES, COOKIE_SECURE
 
 # ── Authentication Endpoints ─────────────────────────────────────────────────────
 
@@ -45,8 +45,8 @@ def _set_auth_cookie(response: Response, token: str):
         key="access_token",
         value=token,
         httponly=True,
-        samesite="lax",
-        secure=False,  # Set True in HTTPS environments
+        samesite="none" if COOKIE_SECURE else "lax",
+        secure=COOKIE_SECURE,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
     )
@@ -115,7 +115,13 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
 
 @router.post("/auth/logout")
 def logout(response: Response):
-    response.delete_cookie(key="access_token", httponly=True, samesite="lax", path="/")
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        samesite="none" if COOKIE_SECURE else "lax",
+        secure=COOKIE_SECURE,
+        path="/",
+    )
     return {"status": "ok", "message": "Logged out successfully."}
 
 
