@@ -43,3 +43,21 @@ def test_cookie_secure_parsing():
     assert parse_cookie_secure("false") is False
     assert parse_cookie_secure("0") is False
     assert parse_cookie_secure("") is False
+
+
+def test_sqlalchemy_engine_dialect_loading():
+    from sqlalchemy import create_engine
+    from app.config import DEFAULT_DB_PATH
+
+    # 1. Test Neon PostgreSQL engine with sslmode query param
+    neon_mock_url = "postgresql+psycopg://user:dummy_pass@ep-fake-123.us-east-2.aws.neon.tech/neondb?sslmode=require"
+    engine_pg = create_engine(neon_mock_url)
+    assert engine_pg.dialect.name == "postgresql"
+    assert engine_pg.dialect.driver == "psycopg"
+    assert engine_pg.url.query.get("sslmode") == "require"
+
+    # 2. Test SQLite engine initialization
+    sqlite_url = f"sqlite:///{DEFAULT_DB_PATH.as_posix()}"
+    engine_sqlite = create_engine(sqlite_url)
+    assert engine_sqlite.dialect.name == "sqlite"
+
