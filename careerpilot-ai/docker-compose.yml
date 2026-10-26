@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: careerpilot
+      POSTGRES_USER: careerpilot
+      POSTGRES_PASSWORD: careerpilot_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - careerpilot_pgdata:/var/lib/postgresql/data
+volumes:
+  careerpilot_pgdata:
